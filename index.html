@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>5 класс — Числовые и буквенные выражения • Теория + игра + ДЗ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --pink:#f7c6d8; --peach:#ffd8b5; --mint:#c7f2d3; --beige:#fff4e5;
+      --ink:#5a2a2a; --ink-soft:#7a4a4a; --accent:#ff9bb3; --ok:#69c28a; --bad:#ff6b6b;
+      --bg: radial-gradient(1200px 800px at 10% 10%, #fff7fb 0%, #fff 45%),
+            radial-gradient(700px 700px at 90% 20%, #fffaf2 0%, #fff 50%),
+            radial-gradient(800px 800px at 20% 90%, #f1fff6 0%, #fff 45%);
+      --shadow:0 10px 30px rgba(80,0,40,.08); --radius:20px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:Poppins, Nunito, sans-serif; color:var(--ink); background:var(--bg); line-height:1.55;}
+    h1,h2,h3{margin:.4em 0 .6em}
+    h1{font-size:clamp(24px, 2.5vw + 8px, 40px);} h2{font-size:clamp(18px, 1.6vw + 8px, 28px);}  h3{font-size:clamp(16px, 1.2vw + 8px, 22px);} 
+    p, li, label, input, button{font-size:clamp(14px, .9vw + 8px, 18px)}
+
+    .wrap{max-width:1100px; margin:0 auto; padding:24px;}
+    .card{background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin:14px 0; position:relative; overflow:hidden}
+    .card::before{content:""; position:absolute; top:0; left:0; right:0; height:6px; background:linear-gradient(90deg,var(--pink),var(--peach),var(--mint));}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:#fff7fb; border:1px solid #ffd8ea; padding:2px 6px; border-radius:6px; transition:transform .12s ease, box-shadow .12s ease}
+    .kbd:hover{transform:translateY(-2px); box-shadow:0 6px 16px rgba(255,155,179,.25)}
+    .btn{background:linear-gradient(180deg,#fff,#ffeef3); border:none; padding:10px 14px; border-radius:12px; cursor:pointer; box-shadow:var(--shadow); color:#7a2d3a; font-weight:600}
+    .btn:hover{transform:translateY(-1px)} .btn:active{transform:translateY(1px)}
+    .btn.primary{background:linear-gradient(180deg, var(--mint), #e0ffe9); color:#1e5133}
+    .answers{display:grid; gap:6px; margin-top:6px}
+
+    /* ===== Яркое оформление теории */
+    h1{background:linear-gradient(90deg,#7a2d3a,#b35a6a); -webkit-background-clip:text; background-clip:text; color:transparent}
+    .theory-rich{display:grid; grid-template-columns:1.2fr .8fr; gap:16px; align-items:center}
+    .theory-rich .illu{justify-self:end}
+    .theory-rich .illu svg{max-width:280px; height:auto; filter:drop-shadow(0 8px 18px rgba(123,45,58,.15))}
+    @media (max-width:900px){.theory-rich{grid-template-columns:1fr}.theory-rich .illu{order:-1; justify-self:center}}
+    .steps{counter-reset:step}
+    .steps li{position:relative; padding-left:44px; margin:10px 0}
+    .steps li::before{content:counter(step); counter-increment:step; position:absolute; left:0; top:0; width:28px; height:28px; border-radius:50%; color:#fff; font-weight:700; display:grid; place-items:center; background:linear-gradient(180deg,#ff9bb3,#f7c6d8); box-shadow:var(--shadow)}
+    .steps li+li::after{content:''; position:absolute; left:14px; top:-16px; width:2px; height:16px; background:#ffd8ea}
+
+    /* ---- Игра ---- */
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+    .lives{display:flex; align-items:center; gap:6px}
+    .lives svg{width:22px; height:22px; fill:#ff7a90; filter:drop-shadow(0 2px 4px rgba(255,0,80,.2))}
+    .pill{display:inline-block; padding:6px 10px; border-radius:999px; font-weight:700}
+    .pill.ok{background:linear-gradient(180deg, #eafff1,#d6ffe7); color:#1a5d38}
+    .pill.bad{background:linear-gradient(180deg, #ffeaea,#ffdede); color:#7a3030}
+    .progress{height:12px; background:#f3e9ef; border-radius:999px; overflow:hidden}
+    .progress>i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--mint), var(--accent)); transition:width .5s}
+    .game-level{display:none} .game-level.active{display:block}
+
+    .drag-area{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+    @media (max-width:800px){.drag-area{grid-template-columns:1fr}}
+    .bin{min-height:140px; border-radius:16px; border:2px dashed #f1c6d4; padding:10px; background:#fff; box-shadow:var(--shadow)}
+    .bin h4{margin:6px 0 10px}
+    .cards{display:flex; flex-wrap:wrap; gap:10px}
+    .card-chip{user-select:none; padding:8px 10px; background:linear-gradient(180deg, #fff, #fff7fb); border-radius:12px; box-shadow:var(--shadow); cursor:grab}
+    .card-chip.dragging{opacity:.7}
+
+    .inline-input{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .inline-input input{width:10ch; padding:8px 10px; border-radius:10px; border:2px solid #f1d1db; outline:none}
+
+    .expr-builder{display:grid; gap:12px}
+    .palette{display:flex; flex-wrap:wrap; gap:8px}
+    .token{padding:8px 12px; border-radius:12px; background:linear-gradient(180deg,#fff,#f7fff9); box-shadow:var(--shadow); cursor:pointer}
+    .codebox{min-height:48px; padding:10px 12px; background:#10110a08; border:2px dashed #c6ecd2; border-radius:12px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace}
+    .codebox .chunk{display:inline-block; padding:4px 6px; margin:4px; background:#fff; border-radius:8px; box-shadow:var(--shadow)}
+
+    .toast{position:fixed; left:50%; top:14px; transform:translateX(-50%) scale(.98); background:#fff; padding:12px 16px; border-radius:16px; box-shadow:0 12px 30px rgba(0,0,0,.12); display:flex; align-items:center; gap:10px; z-index:999; opacity:0; pointer-events:none; transition: .35s ease}
+    .toast.show{opacity:1; transform:translateX(-50%) scale(1)}
+
+    .confetti{position:fixed; top:-10px; width:8px; height:12px; background:var(--accent); opacity:.9; z-index:9999; border-radius:2px; animation:fall 1.5s linear forwards}
+    @keyframes fall{to{transform:translateY(110vh) rotate(300deg); opacity:0}}
+  </style>
+</head>
+<body>
+  <div class="wrap" id="top">
+    <h1>Числовые и буквенные выражения</h1>
+
+    <!-- ======= ТЕОРИЯ ======= -->
+    <section class="card" id="theory-what">
+      <div class="theory-rich">
+        <div class="text">
+          <h2>Что такое выражение?</h2>
+          <p><b>Выражение</b> – это математическая запись, которая может состоять из чисел, знаков действий и букв.</p>
+          <ul>
+            <li><b>Числовое выражение</b> содержит только числа и знаки действий. Пример: <span class="kbd">5 · 3 + 15 · 2</span>.</li>
+            <li><b>Буквенное выражение</b> содержит буквы (переменные). Пример: <span class="kbd">x + 5</span> или <span class="kbd">2a + 3</span>.</li>
+          </ul>
+          <p><i>Пример из жизни:</i> батон хлеба стоит <span class="kbd">5</span> р., шоколад – <span class="kbd">15</span> р. Тогда 3 батона и 2 шоколадки стоят <span class="kbd">5 · 3 + 15 · 2</span> р. Это числовое выражение.</p>
+          <p>А если обозначить цену хлеба через <span class="kbd">x</span>, а шоколада через <span class="kbd">y</span>, то получаем выражение <span class="kbd">x · 3 + y · 2</span>. Это буквенное выражение.</p>
+          <p><b>Вывод:</b> числовые выражения содержат только числа, а буквенные помогают описывать разные ситуации и находить ответы при подстановке значений.</p>
+        </div>
+        <div class="illu" aria-hidden="true">
+          <svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="bag" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#ffd8b5"/>
+                <stop offset="1" stop-color="#fff4e5"/>
+              </linearGradient>
+            </defs>
+            <rect x="60" y="40" width="100" height="100" rx="14" fill="url(#bag)" stroke="#f2c8ad"/>
+            <path d="M76 40 q34 -24 68 0" fill="none" stroke="#e0a98c" stroke-width="4"/>
+            <rect x="85" y="15" width="18" height="50" rx="6" fill="#f7c6d8" stroke="#e3a7be"/>
+            <rect x="120" y="8" width="20" height="60" rx="6" fill="#c7f2d3" stroke="#9ddfb5"/>
+            <text x="110" y="150" text-anchor="middle" fill="#7a2d3a" font-family="Nunito" font-size="12">3f + 20</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="theory-order">
+      <div class="theory-rich">
+        <div class="text">
+          <h2>Порядок действий и скобки</h2>
+          <p>Важно соблюдать порядок:</p>
+          <ol class="steps">
+            <li>Сначала считаем <b>в скобках</b>.</li>
+            <li>Затем выполняем <b>умножение и деление</b> (слева направо).</li>
+            <li>Потом выполняем <b>сложение и вычитание</b>.</li>
+          </ol>
+          <p>Пример: <span class="kbd">24 − (6 + 2) · 3</span> = <span class="kbd">24 − 8 · 3</span> = <span class="kbd">24 − 24</span> = <b>0</b>.</p>
+          <p><b>Жизненный пример:</b> если у тебя есть 100 рублей, ты купил пирожок за 30 рублей и три конфеты по 10 рублей, запись будет: <span class="kbd">100 − (30 + 3 · 10)</span>. Сначала в скобках, потом вычитание.</p>
+        </div>
+        <div class="illu" aria-hidden="true">
+          <svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg">
+            <rect x="30" y="40" width="160" height="80" rx="14" fill="#fff7fb" stroke="#ffd8ea"/>
+            <text x="110" y="85" text-anchor="middle" font-family="Nunito" font-size="32" fill="#7a2d3a">( ) · + −</text>
+            <text x="110" y="135" text-anchor="middle" font-family="Nunito" font-size="14" fill="#b35a6a">скобки → умн/дел → слож/выч</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="theory-why">
+      <div class="theory-rich">
+        <div class="text">
+          <h2>Зачем нужны буквенные выражения?</h2>
+          <p>Буквы – это <b>переменные</b>, которые могут принимать разные значения. Благодаря этому выражение становится универсальным.</p>
+          <p><i>Пример:</i> пусть <span class="kbd">s</span> – количество шагов за один круг стадиона. За 5 кругов ты сделаешь <span class="kbd">5s</span> шагов. Если <span class="kbd">s=120</span>, то получится <span class="kbd">600</span> шагов. Если <span class="kbd">s=150</span>, то получится <span class="kbd">750</span> шагов. Одно выражение подходит для разных случаев!</p>
+        </div>
+        <div class="illu" aria-hidden="true">
+          <svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg">
+            <rect x="30" y="30" width="160" height="100" rx="16" fill="#e9fff3" stroke="#c7f2d3"/>
+            <circle cx="70" cy="80" r="10" fill="#69c28a"/>
+            <circle cx="100" cy="80" r="10" fill="#69c28a"/>
+            <circle cx="130" cy="80" r="10" fill="#69c28a"/>
+            <circle cx="160" cy="80" r="10" fill="#69c28a"/>
+            <text x="110" y="125" text-anchor="middle" font-family="Nunito" font-size="14" fill="#1a5d38">5s шагов</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="theory-mini">
+      <h2>Мини‑задания прямо в теории</h2>
+      <p><b>1.</b> Найди значение: <span class="kbd">2x + 7</span>, если <span class="kbd">x = 5</span>.</p>
+      <p><b>2.</b> Подумай: что обозначает выражение <span class="kbd">3p + 2</span>, если <span class="kbd">p</span> – цена ручки?</p>
+      <p><b>3.</b> Запиши выражение: «температура утром <span class="kbd">t</span>, днём стало на 6 теплее».</p>
+    </section>
+
+    <section class="card" id="theory-life">
+      <h2>Жизненные примеры</h2>
+      <ul>
+        <li><b>Покупки.</b> Цена фломастера — <span class="kbd">f</span> р. Запись «3 фломастера и ещё 20 р на наклейки» — это <span class="kbd">3f + 20</span>.</li>
+        <li><b>Спорт.</b> На тренировке по плану <span class="kbd">k</span> кругов. Если ты пробежал на 2 круга больше, дистанция — <span class="kbd">k + 2</span> кругов.</li>
+        <li><b>Температура.</b> Утром <span class="kbd">t</span>°С, днём стало на 7 теплее, вечером на 3 холоднее. Вечером: <span class="kbd">(t + 7) − 3 = t + 4</span>.</li>
+        <li><b>Площадь прямоугольника.</b> Стороны <span class="kbd">a</span> и <span class="kbd">b</span>. Площадь: <span class="kbd">S = ab</span>.</li>
+      </ul>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
+        <button class="btn primary" id="toGame">Далее → перейти к игре</button>
+        <span class="pill ok">Канал: <a href="https://t.me/lera_easy_math" target="_blank" style="color:#1a5d38; text-decoration:none">@lera_easy_math</a></span>
+      </div>
+    </section>
+
+    <!-- ======= ИГРА ======= -->
+    <section class="card" id="game" style="display:none">
+      <h2>Игра: 5 уровней • тренируем выражения</h2>
+      <div class="topbar">
+        <div class="lives" id="lives">
+          <svg viewBox="0 0 24 24"><path d="M12 21s-7.2-4.35-9.6-8.4C.9 9.9 2.1 6.6 5.1 5.4 7.2 4.5 9.6 5.1 12 7.5c2.4-2.4 4.8-3 6.9-2.1 3 1.2 4.2 4.5 2.7 7.2C19.2 16.65 12 21 12 21z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 21s-7.2-4.35-9.6-8.4C.9 9.9 2.1 6.6 5.1 5.4 7.2 4.5 9.6 5.1 12 7.5c2.4-2.4 4.8-3 6.9-2.1 3 1.2 4.2 4.5 2.7 7.2C19.2 16.65 12 21 12 21z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 21s-7.2-4.35-9.6-8.4C.9 9.9 2.1 6.6 5.1 5.4 7.2 4.5 9.6 5.1 12 7.5c2.4-2.4 4.8-3 6.9-2.1 3 1.2 4.2 4.5 2.7 7.2C19.2 16.65 12 21 12 21z"/></svg>
+        </div>
+        <div class="pill ok" id="gameProgress">Уровень 1 из 5</div>
+        <div style="flex:1 1 100%; height:12px" class="progress"><i id="progressBar" style="width:0%"></i></div>
+        <button class="btn" id="resetGame">Сбросить игру</button>
+      </div>
+
+      <!-- Уровень 1: Викторина -->
+      <div class="game-level active" data-level="1">
+        <h3>Уровень 1: Викторина</h3>
+        <p>Отвечай на вопросы. Нужно дать 4 верных ответа.</p>
+        <div id="quiz"></div>
+        <div style="margin-top:10px"><button class="btn" id="nextFrom1" disabled>Дальше →</button></div>
+      </div>
+
+      <!-- Уровень 2: Drag & Drop -->
+      <div class="game-level" data-level="2">
+        <h3>Уровень 2: Разложи карточки</h3>
+        <p>Перетащи выражения в правильные корзины.</p>
+        <div class="drag-area">
+          <div class="bin" data-type="num"><h4>Числовые</h4><div class="cards" id="bin-num"></div></div>
+          <div class="bin" data-type="let"><h4>Буквенные</h4><div class="cards" id="bin-let"></div></div>
+        </div>
+        <div class="cards" id="pool" style="margin-top:12px"></div>
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn" id="checkDrag">Проверить</button>
+          <button class="btn" id="shuffleDrag">Пересдать карточки</button>
+          <button class="btn" id="nextFrom2" disabled>Дальше →</button>
+        </div>
+      </div>
+
+      <!-- Уровень 3: Подстановка значений -->
+      <div class="game-level" data-level="3">
+        <h3>Уровень 3: Подставь и посчитай</h3>
+        <p>Введи ответы (целые числа). Минимум 3 из 4 верно.</p>
+        <div id="subsTasks" class="grid-two"></div>
+        <div style="margin-top:10px"><button class="btn" id="checkSubs">Проверить</button> <button class="btn" id="nextFrom3" disabled>Дальше →</button></div>
+      </div>
+
+      <!-- Уровень 4: Конструктор выражений -->
+      <div class="game-level" data-level="4">
+        <h3>Уровень 4: Собери выражение</h3>
+        <p>Кликай по плиткам, чтобы собрать запись по описанию. Можно удалять последний токен клавишей Backspace.</p>
+        <div id="builder" class="expr-builder card"></div>
+        <div style="margin-top:10px"><button class="btn" id="checkBuild">Проверить</button> <button class="btn" id="clearBuild">Очистить</button> <button class="btn" id="nextFrom4" disabled>Дальше →</button></div>
+      </div>
+
+      <!-- Уровень 5: Мини‑симуляция «Покупки» -->
+      <div class="game-level" data-level="5">
+        <h3>Уровень 5: Мини‑симуляция «Покупки»</h3>
+        <p>Составь выражение для покупки и посчитай стоимость при заданных ценах.</p>
+        <div class="mini-shop">
+          <div class="goods" id="shopGoods"></div>
+          <div class="card">
+            <div><b>1)</b> Составь выражение итоговой суммы <i>S</i>: <span id="shopHint"></span></div>
+            <div class="inline-input" style="margin-top:6px">
+              <span>S = </span>
+              <input type="text" id="shopExpr" placeholder="например, 3p + 2r">
+              <button class="btn" id="checkShopExpr">Проверить выражение</button>
+            </div>
+            <div id="shopExprRes" style="margin-top:6px"></div>
+            <hr style="border:none; border-top:1px dashed #f0c6d4; margin:12px 0">
+            <div><b>2)</b> Посчитай сумму при значениях: <span id="shopValues"></span></div>
+            <div class="inline-input" style="margin-top:6px">
+              <span>S = </span>
+              <input type="number" id="shopValue" placeholder="? руб.">
+              <button class="btn" id="checkShopValue">Проверить сумму</button>
+            </div>
+            <div id="shopValRes" style="margin-top:6px"></div>
+            <div style="margin-top:12px"><button class="btn" id="finishGame">Финиш 🎉</button></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======= ДЗ (покажется после финиша) ======= -->
+    <section class="card" id="homework" style="display:none">
+      <h2>Домашнее задание</h2>
+      <p>Выполни письменно в тетради.</p>
+      <ol>
+        <li><b>Составь выражение по тексту.</b> «Купили <b>3 ручки</b> по <span class="kbd">p</span> рублей и <b>2 тетради</b> по <span class="kbd">t</span> рублей». Запиши стоимость покупки.</li>
+        <li><b>Вычиcли по порядку действий:</b> <span class="kbd">36 − (4 + 5) · 2</span>, <span class="kbd">(30 : 5) + 7 · 3</span>.</li>
+        <li><b>Подставь значения.</b> При <span class="kbd">x=6</span> найди: <span class="kbd">x + 4</span>, <span class="kbd">3x</span>, <span class="kbd">2x + 5</span>.</li>
+        <li><b>Классификация.</b> Отметь буквенные: <span class="kbd">(a+6)·2</span>, <span class="kbd">45−9·4</span>, <span class="kbd">7m−3</span>, <span class="kbd">(20:5)+11</span>, <span class="kbd">3(p+2)</span>.</li>
+        <li><b>Челлендж ✨</b> «Температура утром — <span class="kbd">t</span>. Днём стало на 5 теплее, вечером на 2 холоднее, чем днём». Запиши выражение для вечерней температуры и найди значение при <span class="kbd">t=10</span>.</li>
+      </ol>
+      <details style="margin-top:10px">
+        <summary>Подсказки/ответы (по клику)</summary>
+        <ul>
+          <li>1) <span class="kbd">3p + 2t</span>.</li>
+          <li>2) <span class="kbd">36 − (4+5)·2 = 36 − 18 = 18</span>; <span class="kbd">(30:5)+7·3 = 6 + 21 = 27</span>.</li>
+          <li>3) <span class="kbd">x+4=10</span>, <span class="kbd">3x=18</span>, <span class="kbd">2x+5=17</span>.</li>
+          <li>4) Буквенные: <span class="kbd">(a+6)·2</span>, <span class="kbd">7m−3</span>, <span class="kbd">3(p+2)</span>.</li>
+          <li>5) Вечером: <span class="kbd">(t + 5) − 2 = t + 3</span>. При <span class="kbd">t=10</span> → <span class="kbd">13</span>.</li>
+        </ul>
+      </details>
+    </section>
+
+    <footer style="margin-top:30px; text-align:center; color:#7a2a3a">
+      Сделано с заботой • канал: <a href="https://t.me/lera_easy_math" target="_blank">@lera_easy_math</a>
+    </footer>
+  </div>
+
+  <!-- Toast для мотивации -->
+  <div class="toast" id="toast"><span id="toastIcon">🌟</span> <span id="toastMsg">Ты умничка!</span></div>
+
+  <script>
+    // ======= Хелперы =======
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const toast = (msg, type='ok')=>{ const el = $('#toast'); $('#toastMsg').textContent = msg; $('#toastIcon').textContent = type==='ok' ? '🌟' : (type==='warn' ? '💡' : '🙈'); el.classList.add('show'); setTimeout(()=> el.classList.remove('show'), 1400); };
+    const confetti = ()=>{ for(let i=0;i<20;i++){ const s=document.createElement('span'); s.className='confetti'; s.style.left = Math.random()*100 + 'vw'; s.style.background = ['#ffadc6','#ffd8b5','#c7f2d3','#f7c6d8'][i%4]; document.body.appendChild(s); setTimeout(()=> s.remove(), 1600);} }
+
+    // ======= Состояние игры =======
+    const state = { level:1, lives:3, quizCorrect:0, dragSolved:false, subsScore:0, buildSolved:false, shopExprOk:false, shopValOk:false };
+
+    function updateProgress(){
+      $('#gameProgress').textContent = `Уровень ${Math.min(state.level,5)} из 5`;
+      $('#progressBar').style.width = ((state.level-1)/5*100)+'%';
+    }
+    function loseLife(){ if(state.lives>0){ const heart = $('#lives').children[state.lives-1]; heart.style.filter='grayscale(1) opacity(.4)'; state.lives--; } if(state.lives===0){ toast('Жизни закончились. Начнём заново','warn'); setTimeout(resetGame,500);} }
+    function resetGame(){ state.level=1; state.lives=3; state.quizCorrect=0; state.dragSolved=false; state.subsScore=0; state.buildSolved=false; state.shopExprOk=false; state.shopValOk=false; $$('#lives svg').forEach(s=> s.style.filter=''); $$('.game-level').forEach(l=> l.classList.remove('active')); $('[data-level="1"]').classList.add('active'); $('#nextFrom1').disabled=true; $('#nextFrom2').disabled=true; $('#nextFrom3').disabled=true; $('#nextFrom4').disabled=true; initQuiz(); initDrag(); initSubs(); initBuilder(); initShop(); updateProgress(); }
+    function goLevel(n){ state.level=n; $$('.game-level').forEach(l=> l.classList.remove('active')); $(`[data-level="${n}"]`).classList.add('active'); updateProgress(); document.getElementById('game').scrollIntoView({behavior:'smooth'}); }
+
+    // Переход из теории в игру
+    $('#toGame').addEventListener('click', ()=>{ document.getElementById('game').style.display='block'; document.getElementById('game').scrollIntoView({behavior:'smooth'}); updateProgress(); });
+
+    // ===== Надёжный вычислитель выражений (без eval) =====
+    function safeEvalExpr(expr, ctx){
+      const s = String(expr).replace(/\s+/g,'');
+      const isDigit = c => /[0-9]/.test(c);
+      const isLetter = c => /[a-zA-Z]/.test(c);
+      const tokens = [];
+      for(let i=0;i<s.length;){
+        const ch = s[i];
+        if(isDigit(ch)){
+          let j=i; while(j<s.length && isDigit(s[j])) j++;
+          tokens.push({t:'num', v:Number(s.slice(i,j))}); i=j; continue;
+        }
+        if(isLetter(ch)){
+          let j=i; while(j<s.length && isLetter(s[j])) j++;
+          const name = s.slice(i,j);
+          tokens.push({t:'num', v:Number(ctx[name])}); i=j; continue;
+        }
+        if('+-*/()'.includes(ch)){ tokens.push({t:'op', v:ch}); i++; continue; }
+        // игнорируем точку умножения и другие символы
+        i++;
+      }
+      const prec = {'+':1,'-':1,'*':2,'/':2};
+      const out=[], stack=[];
+      for(const tok of tokens){
+        if(tok.t==='num') out.push(tok.v);
+        else if(tok.v==='(') stack.push(tok.v);
+        else if(tok.v===')'){ while(stack.length && stack[stack.length-1] !== '(') out.push(stack.pop()); stack.pop(); }
+        else { while(stack.length && prec[stack[stack.length-1]]>=prec[tok.v]) out.push(stack.pop()); stack.push(tok.v); }
+      }
+      while(stack.length) out.push(stack.pop());
+      const st=[];
+      for(const x of out){
+        if(typeof x==='number') st.push(x);
+        else { const b=st.pop(), a=st.pop(); st.push(x==='+'?a+b:x==='-'?a-b:x==='*'?a*b:a/b); }
+      }
+      return st.pop();
+    }
+
+    // ===== Уровень 1: Викторина =====
+    const quizData = [
+      {q:'Отметь буквенное выражение', options:['7 + 4 · 2','(a + 3) · 2','24 : (6 − 2)','36 − 5'], ok:'(a + 3) · 2'},
+      {q:'Чему равно 3x при x=5?', options:['8','15','10','3'], ok:'15'},
+      {q:'Что сначала в выражении 20 − 4 · (2 + 1)?', options:['Вычитание','Умножение','Скобки','Деление'], ok:'Скобки'},
+      {q:'Как читается 2x?', options:['Два плюс x','Два икс (2 · x)','Два разделить на x','x в квадрате'], ok:'Два икс (2 · x)'},
+      {q:'Выбери числовое выражение', options:['2x + 7','(m + 1) · 3','45 − 6 · 2','a : 5'], ok:'45 − 6 · 2'},
+    ];
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
+    function initQuiz(){ const cont = $('#quiz'); cont.innerHTML=''; state.quizCorrect=0; const pick = shuffle([...quizData]).slice(0,4); pick.forEach((item, idx)=>{ const card = document.createElement('div'); card.className='card'; card.innerHTML = `<div><b>Вопрос ${idx+1}.</b> ${item.q}</div>`; const answers = document.createElement('div'); answers.className='answers'; shuffle([...item.options]).forEach(opt=>{ const label=document.createElement('label'); const r=document.createElement('input'); r.type='radio'; r.name='quiz'+idx; r.value=opt; label.append(r, ' '+opt); answers.appendChild(label); }); const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Ответить'; const res=document.createElement('div'); res.className='result'; res.style.marginTop='6px'; btn.addEventListener('click', ()=>{ const val=$('input[name="quiz'+idx+'"]:checked', card)?.value; if(!val){ toast('Выбери вариант','warn'); return; } if(val===item.ok){ res.innerHTML='<span class="pill ok">Верно!</span>'; state.quizCorrect++; btn.disabled=true; confetti(); if(state.quizCorrect>=4){ $('#nextFrom1').disabled=false; toast('Уровень пройден!'); } } else { res.innerHTML='<span class="pill bad">Нет, подумай ещё.</span>'; loseLife(); } }); card.append(answers, btn, res); cont.appendChild(card); }); }
+    $('#nextFrom1').addEventListener('click', ()=> goLevel(2));
+
+    // ===== Уровень 2: Drag & Drop =====
+    const dragItems = [
+      {t:'7 + 5 · 2', type:'num'}, {t:'2x + 5', type:'let'}, {t:'(a + 3) · 2', type:'let'}, {t:'24 : (6 − 2)', type:'num'}, {t:'3m − 1', type:'let'}, {t:'36 − 18', type:'num'}, {t:'5(p + 2)', type:'let'}, {t:'(30 : 5) + 7', type:'num'},
+    ];
+    function initDrag(){ $('#bin-num').innerHTML=''; $('#bin-let').innerHTML=''; $('#pool').innerHTML=''; shuffle([...dragItems]).forEach((it)=>{ const c=document.createElement('div'); c.className='card-chip'; c.textContent=it.t; c.draggable=true; c.dataset.type=it.type; c.addEventListener('dragstart', ()=> c.classList.add('dragging')); c.addEventListener('dragend', ()=> c.classList.remove('dragging')); $('#pool').appendChild(c); }); $$('.bin').forEach(bin=>{ bin.addEventListener('dragover', e=> e.preventDefault()); bin.addEventListener('drop', ()=>{ const dragging=$('.card-chip.dragging'); if(dragging) bin.querySelector('.cards').appendChild(dragging); }) }); }
+    $('#checkDrag').addEventListener('click', ()=>{ const okNum=$$('#bin-num .card-chip').every(c=> c.dataset.type==='num'); const okLet=$$('#bin-let .card-chip').every(c=> c.dataset.type==='let'); const usedAll=$$('#pool .card-chip').length===0; if(okNum && okLet && usedAll){ toast('Порядок!'); confetti(); $('#nextFrom2').disabled=false; } else { toast('Есть карточки не там','warn'); loseLife(); } });
+    $('#shuffleDrag').addEventListener('click', initDrag);
+    $('#nextFrom2').addEventListener('click', ()=> goLevel(3));
+
+    // ===== Уровень 3: Подстановка =====
+    function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a }
+    function initSubs(){ const tasks=[ {expr:'2*x + 5', vars:{x:randInt(2,5)}}, {expr:'3*(m + 2)', vars:{m:randInt(1,6)}}, {expr:'(a + 4) * 2', vars:{a:randInt(1,7)}}, {expr:'30/5 + 2*y', vars:{y:randInt(2,6)}}, ]; const cont=$('#subsTasks'); cont.innerHTML=''; state.subsScore=0; tasks.forEach((t,i)=>{ const correct = Math.round(safeEvalExpr(t.expr, t.vars)); const card=document.createElement('div'); card.className='card'; card.innerHTML=`<div><b>Задача ${i+1}.</b> При ${Object.entries(t.vars).map(([k,v])=> `${k}=${v}`).join(', ')} найдите значение выражения <span class="kbd">${t.expr.replaceAll('*','·')}</span></div>`; const inl=document.createElement('div'); inl.className='inline-input'; const input=document.createElement('input'); input.type='number'; input.placeholder='?'; input.dataset.ok=correct; const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Проверить'; const res=document.createElement('div'); res.className='result'; btn.addEventListener('click', ()=>{ const val=Number(input.value); if(input.value===''){ toast('Введи ответ','warn'); return; } if(val===Number(input.dataset.ok)) { res.innerHTML='<span class="pill ok">Верно!</span>'; state.subsScore++; confetti(); btn.disabled=true; } else { res.innerHTML='<span class="pill bad">Неверно.</span>'; loseLife(); } if(state.subsScore>=3) { $('#nextFrom3').disabled=false; toast('Можно дальше!'); } }); inl.append('Ответ: ', input, btn); card.append(inl, res); cont.appendChild(card); }) }
+    $('#checkSubs').addEventListener('click', ()=>{ if(state.subsScore>=3) { $('#nextFrom3').disabled=false; toast('Отлично!'); } else { toast('Нужно минимум 3 верных','warn'); }});
+    $('#nextFrom3').addEventListener('click', ()=> goLevel(4));
+
+    // ===== Уровень 4: Конструктор =====
+    const buildTasks=[ {desc:'Собери: «сумма числа 8 и произведения 3 и x»', allowRegex:/^8\s*\+\s*3\s*\*?\s*x$/}, {desc:'Собери: «произведение суммы x и 5 на 3»', allowRegex:/^(?:3\s*\*?\s*\(?\s*x\s*\+\s*5\s*\)?|\(?\s*x\s*\+\s*5\s*\)?\s*\*?\s*3)$/}, {desc:'Собери: «частное суммы a и b и числа 2»', allowRegex:/^\(?\s*a\s*\+\s*b\s*\)?\s*\/\s*2$/}, ];
+    let buildIdx=0, buildBuf=[];
+    function renderBuilder(){ const root=$('#builder'); root.innerHTML=''; const task=buildTasks[buildIdx]; const title=document.createElement('div'); title.innerHTML=`<b>${task.desc}</b>`; const code=document.createElement('div'); code.className='codebox'; code.id='codebox'; const pal=document.createElement('div'); pal.className='palette'; ['(',')','+','−','-','*','·','/','x','a','b','3','5','8','2'].forEach(t=>{ const btn=document.createElement('button'); btn.type='button'; btn.className='token'; btn.textContent=t; btn.addEventListener('click', ()=>{ buildBuf.push(t); drawBuf(); }); pal.appendChild(btn); }); const tip=document.createElement('div'); tip.style.color='#7a4a4a'; tip.style.fontSize='14px'; tip.textContent='Подсказка: умножение можно писать как * или без знака (3x).'; root.append(title, code, pal, tip); drawBuf(); document.onkeydown=(e)=>{ if(e.key==='Backspace'){ buildBuf.pop(); drawBuf(); } } }
+    function drawBuf(){ const box=$('#codebox'); box.innerHTML=''; if(buildBuf.length===0){ box.textContent='(пусто)'; box.style.opacity='.6'; } else { box.style.opacity='1'; } buildBuf.forEach(ch=>{ const span=document.createElement('span'); span.className='chunk'; span.textContent=ch==='−' ? '-' : ch; box.appendChild(span); }); }
+    function initBuilder(){ buildIdx=0; buildBuf=[]; renderBuilder(); }
+    $('#checkBuild').addEventListener('click', ()=>{ const raw=buildBuf.join('').replace(/·/g,'*').replace(/−/g,'-').replace(/\s+/g,''); const ok=buildTasks[buildIdx].allowRegex.test(raw); if(ok){ confetti(); toast('Отлично!'); buildIdx++; buildBuf=[]; if(buildIdx<buildTasks.length){ renderBuilder(); } else { $('#nextFrom4').disabled=true; goLevel(5); } } else { toast('Попробуй расставить скобки/знаки иначе','warn'); loseLife(); } });
+    $('#clearBuild').addEventListener('click', ()=>{ buildBuf=[]; drawBuf(); });
+
+    // ===== Уровень 5: Покупки =====
+    const shopData = { goods:[ {name:'Тетрадь', sym:'p', qty:3}, {name:'Ручка', sym:'r', qty:2}, ], values:{p:randInt(10,15), r:randInt(20,30)}, expectExpr:/^\s*3\s*\*?\s*p\s*\+\s*2\s*\*?\s*r\s*$/ };
+    function initShop(){ const g=$('#shopGoods'); g.innerHTML=''; shopData.goods.forEach(it=>{ const row=document.createElement('div'); row.className='card'; row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.innerHTML=`<div><b>${it.name}</b> (<span class=\"kbd\">${it.sym}</span> руб./шт)</div><div>кол-во: <span class=\"kbd\">${it.qty}</span></div>`; g.appendChild(row); }); $('#shopHint').innerHTML = `3 тетради по <span class=\"kbd\">p</span> и 2 ручки по <span class=\"kbd\">r</span>.`; $('#shopValues').innerHTML = `p = <span class=\"kbd\">${shopData.values.p}</span>, r = <span class=\"kbd\">${shopData.values.r}</span>.`; $('#shopExpr').value=''; $('#shopValue').value=''; $('#finishGame').disabled=false; state.shopExprOk=false; state.shopValOk=false; }
+    $('#checkShopExpr').addEventListener('click', ()=>{ const val=$('#shopExpr').value.replace(/·/g,'*'); const ok=shopData.expectExpr.test(val); $('#shopExprRes').innerHTML = ok ? '<span class=\"pill ok\">Верно: S = 3p + 2r.</span>' : '<span class=\"pill bad\">Подумай: 3p + 2r.</span>'; if(ok){ state.shopExprOk=true; confetti(); maybeFinish(); } else { loseLife(); } });
+    $('#checkShopValue').addEventListener('click', ()=>{ const v=Number($('#shopValue').value); if($('#shopValue').value===''){ toast('Введи сумму','warn'); return; } const target=3*shopData.values.p + 2*shopData.values.r; const ok=v===target; $('#shopValRes').innerHTML = ok ? `<span class=\"pill ok\">Верно: ${target} руб.</span>` : '<span class=\"pill bad\">Неверно. Подставь значения в 3p+2r.</span>'; if(ok){ state.shopValOk=true; confetti(); maybeFinish(); } else { loseLife(); } });
+    function maybeFinish(){ if(state.shopExprOk && state.shopValOk){ $('#finishGame').disabled=false; } }
+    $('#finishGame').addEventListener('click', ()=>{ // показываем ДЗ и скроллим
+      document.getElementById('homework').style.display='block';
+      document.getElementById('homework').scrollIntoView({behavior:'smooth'});
+      toast('Игра пройдена! Молодец!');
+      confetti(); confetti();
+    });
+
+    // ===== Инициализация =====
+    function initAll(){ initQuiz(); initDrag(); initSubs(); initBuilder(); initShop(); updateProgress(); }
+    initAll();
+    $('#resetGame').addEventListener('click', resetGame);
+  </script>
+</body>
+</html>
